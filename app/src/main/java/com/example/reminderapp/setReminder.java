@@ -130,18 +130,26 @@ public class setReminder extends AppCompatActivity {
         else
             calendar.set(Calendar.AM_PM,PM);
 
-        Toast.makeText(this, ""+calendar.getTime(), Toast.LENGTH_LONG).show();
+        //Toast.makeText(this, ""+calendar.getTime(), Toast.LENGTH_LONG).show();
 
-        //Calendar c2 = Calendar.getInstance();
-        long s1 = calendar.getTimeInMillis();
-        long s2 = System.currentTimeMillis();
+        Calendar c2 = Calendar.getInstance();
+        long s1 = calendar.getTimeInMillis(); //set Time
+        long s2 = c2.getTimeInMillis();       // current time
         long diff = s1 - s2;
-        Intent myIntent = new Intent(setReminder.this , MyNotifyService.class ) ;
+        if(diff < 0)
+        {
+            diff = -diff;
+        }
 
+        Intent myIntent = new Intent(setReminder.this , MyBroadcastReceiver.class ) ;
+        myIntent.putExtra("title",title.getText().toString());
+        myIntent.putExtra("desc",desc.getText().toString());
         AlarmManager alarmManager = (AlarmManager) this.getSystemService( ALARM_SERVICE ) ;
-        PendingIntent pendingIntent = PendingIntent. getService ( getApplicationContext(), 0 , myIntent , 0 ) ;
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getBaseContext(),0,myIntent,0);
 
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP , diff,1000 * 60 * 60 * 24 , pendingIntent);
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP , diff,AlarmManager.INTERVAL_FIFTEEN_MINUTES , pendingIntent);
+
+        Toast.makeText(this, "Alarm set after: " + diff/(1000*60) + " minutes", Toast.LENGTH_SHORT).show();
 
         //Toast.makeText(setReminder.this, ""+day+" / "+month+" / "+year+" || "+hr+" : "+min, Toast.LENGTH_LONG).show();
 
