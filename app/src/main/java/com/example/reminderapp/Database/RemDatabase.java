@@ -1,7 +1,10 @@
 package com.example.reminderapp.Database;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -13,16 +16,19 @@ import com.example.reminderapp.Model.Reminder;
 
 import java.util.ArrayList;
 
+import static android.content.Context.ALARM_SERVICE;
+
 public class RemDatabase extends SQLiteOpenHelper{
 
     Context context;
+
     public RemDatabase(@Nullable Context context) {
-        super(context, "rem_db", null, 1);
+        super(context, "rem_db", null, 56);
         this.context = context;
     }
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        String sql = "Create table RemData(title,description,date,time,repeatMode)";
+        String sql = "Create table RemData(title,description,date,time,repeatMode,reqCode)";
         sqLiteDatabase.execSQL(sql);
     }
 
@@ -35,6 +41,7 @@ public class RemDatabase extends SQLiteOpenHelper{
         cv.put("date",r1.getDate());
         cv.put("time",r1.getTime());
         cv.put("repeatMode",r1.getRepeatMode());
+        cv.put("reqCode",r1.getReqCode()+"");
         db.insert("RemData",null, cv);
         Toast.makeText(context, "Data Inserted!", Toast.LENGTH_SHORT).show();
     }
@@ -55,6 +62,7 @@ public class RemDatabase extends SQLiteOpenHelper{
             r1.setDate(cursor.getString(2));
             r1.setTime(cursor.getString(3));
             r1.setRepeatMode(cursor.getString(4));
+            r1.setReqCode(Integer.parseInt(cursor.getString(5)));
             userArrayList.add(r1);
         }
         if(flag_2 == 0)
@@ -63,7 +71,7 @@ public class RemDatabase extends SQLiteOpenHelper{
         }
         cursor.close();
         closeDatabase(db);
-        return  userArrayList;
+        return userArrayList;
     }
 
     public void deleteReminder(String title){
@@ -72,7 +80,7 @@ public class RemDatabase extends SQLiteOpenHelper{
     }
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-
+        onCreate(sqLiteDatabase);
     }
     private void closeDatabase(SQLiteDatabase db) {
         if (db != null && db.isOpen()) {

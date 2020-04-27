@@ -1,8 +1,9 @@
 package com.example.reminderapp.Model;
 
 public class Reminder {
-    String title,description,date,time,repeatMode;
 
+    private int reqCode;
+    private String title,description,date,time,repeatMode;
 
     public Reminder() {
     }
@@ -46,4 +47,14 @@ public class Reminder {
     public void setRepeatMode(String repeatMode) {
         this.repeatMode = repeatMode;
     }
+
+    public int getReqCode() {
+        return reqCode;
+    }
+
+    public void setReqCode(int reqCode) {
+        this.reqCode = reqCode;
+    }
+
+
 }

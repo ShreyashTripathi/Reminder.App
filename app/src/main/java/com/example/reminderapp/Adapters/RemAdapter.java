@@ -1,6 +1,9 @@
 package com.example.reminderapp.Adapters;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +15,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.reminderapp.Database.RemDatabase;
 import com.example.reminderapp.Model.Reminder;
+import com.example.reminderapp.MyBroadcastReceiver;
 import com.example.reminderapp.R;
+import com.example.reminderapp.setReminder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+
+import static android.content.Context.ALARM_SERVICE;
 
 public class RemAdapter extends RecyclerView.Adapter<RemAdapter.RemViewHolder>{
 
@@ -41,7 +48,7 @@ public class RemAdapter extends RecyclerView.Adapter<RemAdapter.RemViewHolder>{
         Reminder r1 = reminderArrayList.get(position);
         final Reminder rem = r1;
         final RemViewHolder r_holder = holder;
-        holder.title.setText(r1.getTitle());
+        holder.title.setText(r1.getReqCode() + " : " + r1.getTitle());
         holder.desc.setText(r1.getDescription());
         holder.date.setText("Date: " + r1.getDate());
         holder.time.setText("Time: " + r1.getTime());
@@ -49,11 +56,15 @@ public class RemAdapter extends RecyclerView.Adapter<RemAdapter.RemViewHolder>{
         holder.can_but.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent myIntent = new Intent(context , MyBroadcastReceiver.class ) ;
+                AlarmManager alarmManager = (AlarmManager) context.getSystemService( ALARM_SERVICE ) ;
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(context,rem.getReqCode(),myIntent,0);
+                alarmManager.cancel(pendingIntent);
                 RemDatabase rdb = new RemDatabase(context);
                 rdb.deleteReminder(rem.getTitle());
                 reminderArrayList.remove(r_holder.getAdapterPosition());
                 notifyDataSetChanged();
-                Toast.makeText(context, "Reminder Deleted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "Reminder Deleted: " + rem.getReqCode(), Toast.LENGTH_SHORT).show();
             }
         });
     }

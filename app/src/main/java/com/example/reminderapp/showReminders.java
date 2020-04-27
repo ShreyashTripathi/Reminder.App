@@ -30,10 +30,6 @@ public class showReminders extends AppCompatActivity {
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(llm);
         ArrayList<Reminder> remArrayList = rdb.showReminderData();
-        if(remArrayList.isEmpty())
-        {
-            Toast.makeText(this, "ArrayList is empty!", Toast.LENGTH_SHORT).show();
-        }
 
         RemAdapter remAdapter = new RemAdapter(showReminders.this,remArrayList);
         recyclerView.setAdapter(remAdapter);

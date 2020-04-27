@@ -24,6 +24,7 @@ import com.example.reminderapp.Model.Reminder;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Random;
 
 import static java.util.Calendar.AM;
 import static java.util.Calendar.PM;
@@ -38,6 +39,8 @@ public class setReminder extends AppCompatActivity {
     RadioGroup rg;
     RadioButton rb;
     RemDatabase rdb;
+    String repMode;
+    int req_code;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,12 +76,17 @@ public class setReminder extends AppCompatActivity {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Calendar calendar = Calendar.getInstance();
+                req_code = Integer.parseInt(calendar.getTimeInMillis()/(1000*1000*1000) + new Random().nextInt(100) +  "" );
+                //req_code = 1221;
                 Reminder rem = new Reminder();
                 rem.setTitle(title.getText().toString());
                 rem.setDescription(desc.getText().toString());
                 rem.setDate(td.getText().toString());
                 rem.setTime(tt.getText().toString());
+                repMode = getRbString();
                 rem.setRepeatMode(getRbString());
+                rem.setReqCode(req_code);
                 rdb.insertReminderData(rem);
 
                 startAlert();
@@ -132,26 +140,26 @@ public class setReminder extends AppCompatActivity {
 
         //Toast.makeText(this, ""+calendar.getTime(), Toast.LENGTH_LONG).show();
 
-        Calendar c2 = Calendar.getInstance();
         long s1 = calendar.getTimeInMillis(); //set Time
-        long s2 = c2.getTimeInMillis();       // current time
-        long diff = s1 - s2;
-        if(diff < 0)
+        long repSec = 0;
+        if(repMode.equals("Daily"))
         {
-            diff = -diff;
+            repSec = 1000 * 60 * 60 * 24;
         }
-
+        else if(repMode.equals("Custom"))
+        {
+            repSec = 0;
+        }
         Intent myIntent = new Intent(setReminder.this , MyBroadcastReceiver.class ) ;
         myIntent.putExtra("title",title.getText().toString());
         myIntent.putExtra("desc",desc.getText().toString());
         AlarmManager alarmManager = (AlarmManager) this.getSystemService( ALARM_SERVICE ) ;
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getBaseContext(),0,myIntent,0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getBaseContext(),req_code,myIntent,0);
 
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP , diff,AlarmManager.INTERVAL_FIFTEEN_MINUTES , pendingIntent);
-
-        Toast.makeText(this, "Alarm set after: " + diff/(1000*60) + " minutes", Toast.LENGTH_SHORT).show();
-
-        //Toast.makeText(setReminder.this, ""+day+" / "+month+" / "+year+" || "+hr+" : "+min, Toast.LENGTH_LONG).show();
+        if(repSec != 0)
+            alarmManager.setRepeating(AlarmManager. RTC_WAKEUP , s1 , repSec , pendingIntent) ;
+        else
+            alarmManager.set(AlarmManager. RTC_WAKEUP , s1 , pendingIntent);
 
     }
 
