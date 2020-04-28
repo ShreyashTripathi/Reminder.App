@@ -43,7 +43,7 @@ public class RemDatabase extends SQLiteOpenHelper{
         cv.put("repeatMode",r1.getRepeatMode());
         cv.put("reqCode",r1.getReqCode()+"");
         db.insert("RemData",null, cv);
-        Toast.makeText(context, "Data Inserted!", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(context, "Data Inserted!", Toast.LENGTH_SHORT).show();
     }
 
     public ArrayList<Reminder> showReminderData()

@@ -48,7 +48,7 @@ public class RemAdapter extends RecyclerView.Adapter<RemAdapter.RemViewHolder>{
         Reminder r1 = reminderArrayList.get(position);
         final Reminder rem = r1;
         final RemViewHolder r_holder = holder;
-        holder.title.setText(r1.getReqCode() + " : " + r1.getTitle());
+        holder.title.setText(r1.getTitle());
         holder.desc.setText(r1.getDescription());
         holder.date.setText("Date: " + r1.getDate());
         holder.time.setText("Time: " + r1.getTime());

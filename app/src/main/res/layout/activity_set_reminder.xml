@@ -144,6 +144,17 @@
 
     </RadioGroup>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="rep mode"
+        android:textColor="#FFC107"
+        android:textSize="15sp"
+        android:layout_marginLeft="30dp"
+        android:id="@+id/num_days_sr"
+        android:visibility="invisible"
+        />
+
     <Button
         android:id="@+id/_save"
         android:layout_width="150dp"

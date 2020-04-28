@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
@@ -22,9 +23,10 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Toast.makeText(context, "Notify Broadcast", Toast.LENGTH_LONG).show();
         this.context = context;
+        title = intent.getExtras().getString("title_");
+        desc = intent.getExtras().getString("desc_");
         issueNotification();
-        title = intent.getStringExtra("title");
-        desc = intent.getStringExtra("desc");
+
 
     }
 
@@ -44,11 +46,11 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
         // it should be the same as passed to the makeNotificationChannel() method
 
         notification
-                .setSmallIcon(R.mipmap.wwicon) // can use any other icon
-                .setContentTitle(""+title)
+                .setSmallIcon(R.mipmap.icon1) // can use any other icon
+                .setContentTitle(title)
                 .setContentText(desc)
-                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),R.mipmap.wwicon))
-                .setNumber(3); // this shows a number in the notification dots
+                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(),R.mipmap.icon2));
+
 
         NotificationManager notificationManager =
                 (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);

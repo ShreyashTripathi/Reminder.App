@@ -2,6 +2,9 @@ package com.example.reminderapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
@@ -10,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -30,10 +34,10 @@ import static java.util.Calendar.AM;
 import static java.util.Calendar.PM;
 import static java.util.Calendar.getInstance;
 
-public class setReminder extends AppCompatActivity {
+public class setReminder extends FragmentActivity implements CustomRepModeFragment.DialogListener {
 
 
-    TextView td,tt;
+    TextView td,tt,num_d;
     EditText title,desc;
     Button save;
     RadioGroup rg;
@@ -41,6 +45,7 @@ public class setReminder extends AppCompatActivity {
     RemDatabase rdb;
     String repMode;
     int req_code;
+    int num_days;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +58,7 @@ public class setReminder extends AppCompatActivity {
         desc = findViewById(R.id._desc);
         save = findViewById(R.id._save);
         rg = findViewById(R.id.rep_mode);
-
+        num_d = findViewById(R.id.num_days_sr);
         rdb = new RemDatabase(setReminder.this);
 
         td.setOnClickListener(new View.OnClickListener() {
@@ -72,6 +77,34 @@ public class setReminder extends AppCompatActivity {
             }
         });
 
+        rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                rb = findViewById(i);
+                if(rb != null)
+                {
+                    repMode = rb.getText().toString();
+                }
+                if(repMode.equals("Custom"))
+                {
+                    DialogFragment dialogFragment = new CustomRepModeFragment();
+
+                    Bundle bundle = new Bundle();
+                    bundle.putBoolean("notAlertDialog", true);
+
+                    dialogFragment.setArguments(bundle);
+
+                    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                    Fragment prev = getSupportFragmentManager().findFragmentByTag("dialog");
+                    if (prev != null) {
+                        ft.remove(prev);
+                    }
+                    ft.addToBackStack(null);
+                    dialogFragment.show(ft, "dialog");
+
+                }
+            }
+        });
 
         save.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,30 +117,23 @@ public class setReminder extends AppCompatActivity {
                 rem.setDescription(desc.getText().toString());
                 rem.setDate(td.getText().toString());
                 rem.setTime(tt.getText().toString());
-                repMode = getRbString();
-                rem.setRepeatMode(getRbString());
+                //repMode = getRbString();
+                if(repMode.equals("Custom"))
+                    repMode = "Repeat after every "+num_days+" days";
+                rem.setRepeatMode(repMode);
                 rem.setReqCode(req_code);
                 rdb.insertReminderData(rem);
 
                 startAlert();
 
+                Toast.makeText(setReminder.this, "Reminder is set!", Toast.LENGTH_SHORT).show();
                 Intent i1 = new Intent(setReminder.this,showReminders.class);
                 startActivity(i1);
             }
         });
     }
 
-    public String getRbString()
-    {
-        int selectedId=rg.getCheckedRadioButtonId();
-        String rep_mode = "";
-        rb = findViewById(selectedId);
 
-        if(rb != null)
-            rep_mode = rb.getText().toString();
-
-        return rep_mode;
-    }
     public void startAlert()
     {
         SharedPreferences d_prefs = setReminder.this.getSharedPreferences(
@@ -148,19 +174,28 @@ public class setReminder extends AppCompatActivity {
         }
         else if(repMode.equals("Custom"))
         {
-            repSec = 0;
+            repSec = num_days * 1000 * 60 * 60 * 24;
         }
         Intent myIntent = new Intent(setReminder.this , MyBroadcastReceiver.class ) ;
-        myIntent.putExtra("title",title.getText().toString());
-        myIntent.putExtra("desc",desc.getText().toString());
+        myIntent.putExtra("title_",title.getText().toString());
+        myIntent.putExtra("desc_",desc.getText().toString());
         AlarmManager alarmManager = (AlarmManager) this.getSystemService( ALARM_SERVICE ) ;
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getBaseContext(),req_code,myIntent,0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getBaseContext(),req_code,myIntent,PendingIntent.FLAG_UPDATE_CURRENT);
 
         if(repSec != 0)
             alarmManager.setRepeating(AlarmManager. RTC_WAKEUP , s1 , repSec , pendingIntent) ;
         else
             alarmManager.set(AlarmManager. RTC_WAKEUP , s1 , pendingIntent);
 
+    }
+    public void onFinishEditDialog(String inputText) {
+
+        if (TextUtils.isEmpty(inputText)) {
+            num_days = 0;
+        } else
+            num_days = Integer.parseInt(inputText);
+        num_d.setVisibility(View.VISIBLE);
+        num_d.setText("Repeat after "+num_days+" days");
     }
 
 }

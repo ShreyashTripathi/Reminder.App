@@ -8,12 +8,12 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/wwicon"
+        android:icon="@mipmap/icon1"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/wwicon"
+        android:roundIcon="@mipmap/icon1"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".temp_activity"></activity>
+
         <activity android:name=".setReminder" />
         <activity android:name=".showReminders" />
         <activity android:name=".MainActivity">
